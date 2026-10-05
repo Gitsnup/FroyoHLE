@@ -4,7 +4,7 @@
 
 **FroyoHLE** is an experimental, open-source high-level emulator (HLE) for applications built for Android 1.x through Android 2.2 Froyo (API levels 1–8). It is written in Rust, with an Android shell and JNI bridge for running the core on modern Android devices.
 
-The project follows the same broad idea as [touchHLE](https://github.com/touchHLE/touchHLE) and [PocketHLE](https://github.com/j92580498-max/PocketHLE): replace the original operating-system APIs with clean-room, host-side implementations instead of emulating an entire phone or device. FroyoHLE is an independent project, not a fork of or an affiliated project with either emulator.
+The project follows the high-level emulation (HLE) approach: replace the original operating-system APIs with clean-room, host-side implementations instead of emulating an entire phone or device.
 
 > **Status:** research prototype. The runtime can inspect and validate APKs, resolve the launcher, execute a growing subset of Dalvik 035 bytecode, boot the launcher lifecycle, load selected libGDX assets, record and rasterize a GLES 1.x-style command stream, and present the software framebuffer through the Android GLES surface. Compatibility is still application-specific and incomplete.
 
@@ -111,13 +111,9 @@ Only test APKs you own or are legally allowed to analyze. FroyoHLE does not ship
 - **Measured compatibility:** every supported behavior should be backed by tests, traces, or a reproducible application result.
 - **Honest status reporting:** unsupported methods and incomplete rendering paths should be visible instead of silently pretending to work.
 
-## Thanks and inspiration
-
-Thank you to the developers and contributors of [touchHLE](https://github.com/touchHLE/touchHLE) for demonstrating a practical high-level emulation approach for historical mobile applications, and to [PocketHLE](https://github.com/j92580498-max/PocketHLE) for showing how the same idea can be applied to another legacy mobile platform with a modern Rust host. Their projects are valuable references and inspiration for the design direction of FroyoHLE. FroyoHLE has its own codebase, scope, and compatibility goals.
-
 ## Name and relationship to other projects
 
-FroyoHLE is an independent prototype. It is not affiliated with Google, Android, touchHLE, PocketHLE, libGDX, or the authors of those projects. Android is a trademark of Google LLC. libGDX is an open-source framework maintained by its contributors.
+FroyoHLE is an independent prototype with its own codebase, scope, and compatibility goals. It is not affiliated with Google, Android, libGDX, or the authors of those projects. Android is a trademark of Google LLC. libGDX is an open-source framework maintained by its contributors.
 
 ## License
 
