@@ -3299,6 +3299,68 @@ impl<'a> Vm<'a> {
                         value.find(&needle).map_or(-1, |index| index as i32),
                     ));
                 }
+                "format" => {
+                    let format = value_of(args.first());
+                    let varargs = match args.get(1) {
+                        Some(Value::Object(id)) => match self.heap_object(*id) {
+                            Some(HeapObject::Array { values, .. }) => values.clone(),
+                            _ => Vec::new(),
+                        },
+                        _ => Vec::new(),
+                    };
+                    let rendered = self.format_java_string(&format, &varargs);
+                    return Ok(Value::Object(self.alloc_string(rendered)));
+                }
+                "replace" => {
+                    let value = value_of(args.first());
+                    let from = value_of(args.get(1));
+                    let to = value_of(args.get(2));
+                    let (from, to) = match (from.chars().next(), to.chars().next()) {
+                        (Some(from), Some(to)) => (from, to),
+                        _ => return Ok(Value::Object(self.alloc_string(value))),
+                    };
+                    return Ok(Value::Object(
+                        self.alloc_string(value.replace(from, &to.to_string())),
+                    ));
+                }
+                "substring" => {
+                    let value = value_of(args.first());
+                    let start = int_arg(args, 1)? as usize;
+                    let end = match args.get(2) {
+                        Some(Value::Int(end)) => *end as usize,
+                        _ => value.chars().count(),
+                    };
+                    let slice: String = value
+                        .chars()
+                        .skip(start)
+                        .take(end.saturating_sub(start))
+                        .collect();
+                    return Ok(Value::Object(self.alloc_string(slice)));
+                }
+                "trim" => {
+                    let value = value_of(args.first());
+                    return Ok(Value::Object(self.alloc_string(value.trim().to_owned())));
+                }
+                "toLowerCase" => {
+                    let value = value_of(args.first());
+                    return Ok(Value::Object(self.alloc_string(value.to_lowercase())));
+                }
+                "toUpperCase" => {
+                    let value = value_of(args.first());
+                    return Ok(Value::Object(self.alloc_string(value.to_uppercase())));
+                }
+                "hashCode" => {
+                    let value = value_of(args.first());
+                    let mut hash: i32 = 0;
+                    for ch in value.chars() {
+                        hash = hash.wrapping_mul(31).wrapping_add(ch as i32);
+                    }
+                    return Ok(Value::Int(hash));
+                }
+                "isEmpty" => {
+                    let value = value_of(args.first());
+                    return Ok(Value::Int(i32::from(value.is_empty())));
+                }
 
                 _ => {}
             }
@@ -3415,6 +3477,21 @@ impl<'a> Vm<'a> {
                 format!("L{};", requested.replace('.', "/"))
             };
             return Ok(Value::Object(self.alloc(HeapObject::Class(descriptor))));
+        }
+        if class_name == "Ljava/lang/Class;" {
+            let receiver = object_arg(args, 0)?;
+            let descriptor = match self.heap_object(receiver) {
+                Some(HeapObject::Class(descriptor)) => descriptor.clone(),
+                _ => String::new(),
+            };
+            if method_name == "getName" || method_name == "getCanonicalName" {
+                return Ok(Value::String(class_binary_name(&descriptor)));
+            }
+            if method_name == "getSimpleName" {
+                let binary = class_binary_name(&descriptor);
+                let simple = binary.rsplit('.').next().unwrap_or(&binary).to_owned();
+                return Ok(Value::String(simple));
+            }
         }
         if class_name == "Ljava/text/DecimalFormat;" {
             let receiver = object_arg(args, 0)?;
@@ -4627,6 +4704,123 @@ impl<'a> Vm<'a> {
         id
     }
 
+    fn format_java_string(&self, format: &str, args: &[Value]) -> String {
+        let render = |value: Option<&Value>| -> String {
+            match value {
+                None | Some(Value::Null) | Some(Value::Void) => "null".to_owned(),
+                Some(Value::String(value)) => value.clone(),
+                Some(Value::Int(value)) => value.to_string(),
+                Some(Value::Long(value)) => value.to_string(),
+                Some(Value::Float(value)) => {
+                    let rounded = (value * 100.0).round() / 100.0;
+                    format!("{rounded}")
+                }
+                Some(Value::Double(value)) => {
+                    let rounded = (value * 100.0).round() / 100.0;
+                    format!("{rounded}")
+                }
+                Some(Value::Object(id)) => match self.heap_object(*id) {
+                    Some(HeapObject::String(value)) => value.clone(),
+                    Some(HeapObject::StringBuilder(value)) => value.clone(),
+                    Some(HeapObject::Class(value)) => value.clone(),
+                    Some(HeapObject::Boxed(value)) => format!("{value:?}"),
+                    _ => "null".to_owned(),
+                },
+            }
+        };
+        let mut out = String::new();
+        let mut chars = format.chars();
+        let mut arg_index = 0usize;
+        while let Some(ch) = chars.next() {
+            if ch != '%' {
+                out.push(ch);
+                continue;
+            }
+            let mut spec = String::new();
+            let kind = loop {
+                match chars.next() {
+                    Some('%') => {
+                        out.push('%');
+                        break ' ';
+                    }
+                    Some(next) if next.is_ascii_alphabetic() => break next,
+                    Some(next) => spec.push(next),
+                    None => break ' ',
+                }
+            };
+            let precision = spec
+                .split('.')
+                .nth(1)
+                .and_then(|digits| digits.parse::<usize>().ok());
+            let arg = args.get(arg_index);
+            arg_index += 1;
+            match kind {
+                's' | 'S' => {
+                    let mut rendered = render(arg);
+                    if kind == 'S' {
+                        rendered = rendered.to_uppercase();
+                    }
+                    out.push_str(&rendered);
+                }
+                'd' => {
+                    let digits = match arg {
+                        Some(Value::Int(value)) => value.to_string(),
+                        Some(Value::Long(value)) => value.to_string(),
+                        Some(Value::Float(value)) => (*value as i64).to_string(),
+                        Some(Value::Double(value)) => (*value as i64).to_string(),
+                        _ => "0".to_owned(),
+                    };
+                    out.push_str(&digits);
+                }
+                'f' => {
+                    let value = match arg {
+                        Some(Value::Int(value)) => *value as f64,
+                        Some(Value::Long(value)) => *value as f64,
+                        Some(Value::Float(value)) => *value as f64,
+                        Some(Value::Double(value)) => *value,
+                        _ => 0.0,
+                    };
+                    out.push_str(&format!(
+                        "{value:.precision$}",
+                        precision = precision.unwrap_or(6)
+                    ));
+                }
+                'x' | 'X' => {
+                    let value = match arg {
+                        Some(Value::Int(value)) => *value as i64,
+                        Some(Value::Long(value)) => *value,
+                        Some(Value::Float(value)) => *value as i64,
+                        Some(Value::Double(value)) => *value as i64,
+                        _ => 0i64,
+                    };
+                    let hex = if kind == 'x' {
+                        format!("{value:x}")
+                    } else {
+                        format!("{value:X}")
+                    };
+                    out.push_str(&hex);
+                }
+                'b' => out.push_str(match arg {
+                    Some(Value::Int(0)) | Some(Value::Null) | None => "false",
+                    _ => "true",
+                }),
+                'c' => {
+                    let ch = match arg {
+                        Some(Value::Int(value)) => char::from_u32(*value as u32).unwrap_or('?'),
+                        _ => '?',
+                    };
+                    out.push(ch);
+                }
+                _ => {
+                    out.push('%');
+                    out.push_str(&spec);
+                    out.push(kind);
+                }
+            }
+        }
+        out
+    }
+
     fn error(&self, pc: usize, opcode: u8, message: impl Into<String>) -> VmError {
         VmError {
             pc,
@@ -4960,6 +5154,11 @@ fn object_arg(args: &[Value], index: usize) -> Result<ObjectId, VmError> {
 
 fn values_equal(left: &Value, right: &Value) -> bool {
     left == right
+}
+fn class_binary_name(descriptor: &str) -> String {
+    let dotted = descriptor.replace('/', ".");
+    let trimmed = dotted.strip_suffix(';').unwrap_or(&dotted);
+    trimmed.strip_prefix('L').unwrap_or(trimmed).to_owned()
 }
 
 fn compare_values(left: &Value, right: &Value, pc: usize, opcode: u8) -> Result<i32, VmError> {
