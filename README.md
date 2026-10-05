@@ -1,21 +1,21 @@
-# DonutHLE
+# FroyoHLE
 
-![DonutHLE logo](docs/images/donuthle-logo.png)
+![FroyoHLE logo](docs/images/froyohle-logo.png)
 
-**DonutHLE** is an experimental, open-source high-level emulator (HLE) for applications built for Android 1.x (API levels 1–4). It is written in Rust, with an Android shell and JNI bridge for running the core on modern Android devices.
+**FroyoHLE** is an experimental, open-source high-level emulator (HLE) for applications built for Android 1.x through Android 2.2 Froyo (API levels 1–8). It is written in Rust, with an Android shell and JNI bridge for running the core on modern Android devices.
 
-The project follows the same broad idea as [touchHLE](https://github.com/touchHLE/touchHLE) and [PocketHLE](https://github.com/j92580498-max/PocketHLE): replace the original operating-system APIs with clean-room, host-side implementations instead of emulating an entire phone or device. DonutHLE is an independent project, not a fork of or an affiliated project with either emulator.
+The project follows the same broad idea as [touchHLE](https://github.com/touchHLE/touchHLE) and [PocketHLE](https://github.com/j92580498-max/PocketHLE): replace the original operating-system APIs with clean-room, host-side implementations instead of emulating an entire phone or device. FroyoHLE is an independent project, not a fork of or an affiliated project with either emulator.
 
 > **Status:** research prototype. The runtime can inspect and validate APKs, resolve the launcher, execute a growing subset of Dalvik 035 bytecode, boot the launcher lifecycle, load selected libGDX assets, record and rasterize a GLES 1.x-style command stream, and present the software framebuffer through the Android GLES surface. Compatibility is still application-specific and incomplete.
 
 ## What is implemented
 
-### APK and Android 1.x platform foundation
+### APK and Android 1.x–2.2 platform foundation
 
 - ZIP/APK inspection with deterministic file listing and safety limits.
 - Android binary XML (`AndroidManifest.xml`) parsing and launcher resolution.
 - DEX header validation and parsing for Dalvik 035 files.
-- An explicit Android 1.x target profile covering API levels 1–4, with API 4 as the default compatibility profile, the Dalvik VM, ARMv5TE-era application assumptions, and a 320×480 default virtual screen.
+- An explicit Android 1.x–2.2 target profile covering API levels 1–8 (Eclair through Froyo included), with API 8 as the default compatibility profile, the Dalvik VM, ARMv5TE-era application assumptions, and a 320×480 default virtual screen.
 - Resource-table discovery and partial `resources.arsc` decoding.
 - Activity, Context, View, lifecycle, message-queue, input, audio, and resource framework shims.
 - A Rust Dalvik interpreter with register bounds checks, method dispatch, call-depth/step limits, and clear unsupported-call diagnostics.
@@ -41,7 +41,7 @@ The project follows the same broad idea as [touchHLE](https://github.com/touchHL
 
 ## Current state of Slice Ice support
 
-Slice Ice is the first concrete libGDX/Android compatibility target in the repository. DonutHLE now gets beyond the splash/screen-manager stage: it can capture the application listener, execute its creation path, keep the render session alive, resolve assets and atlas regions, route texture-backed sprite draws through the software GLES renderer, and copy the resulting framebuffer to Android.
+Slice Ice is the first concrete libGDX/Android compatibility target in the repository. FroyoHLE now gets beyond the splash/screen-manager stage: it can capture the application listener, execute its creation path, keep the render session alive, resolve assets and atlas regions, route texture-backed sprite draws through the software GLES renderer, and copy the resulting framebuffer to Android.
 
 This does **not** mean that Slice Ice is fully playable yet. Remaining failures can come from unimplemented Dalvik instructions, framework methods, resource formats, libGDX overloads, input, audio, timing, or game-specific assumptions. A successful boot or visible frame is evidence that a compatibility path works; it is not a general compatibility claim.
 
@@ -86,17 +86,17 @@ cargo run -- run path/to/game.apk
 The Windows download is a console executable, not a graphical game window. Launch it from PowerShell or Command Prompt with an APK argument:
 
 ```powershell
-DonutHLE-windows-x86_64.exe run path\\to\\game.apk
+FroyoHLE-windows-x86_64.exe run path\\to\\game.apk
 ```
 
 You can also drag an APK onto the executable. Running the `.exe` by itself only prints the command help; the desktop runtime does not yet create a native window or render a playable game surface.
 
-Only test APKs you own or are legally allowed to analyze. DonutHLE does not ship game files and does not bypass licensing, DRM, signature checks, or online services.
+Only test APKs you own or are legally allowed to analyze. FroyoHLE does not ship game files and does not bypass licensing, DRM, signature checks, or online services.
 
 ## Roadmap
 
 1. Expand Dalvik 035 opcode coverage and improve `invoke-direct`, `invoke-virtual`, interface, class initialization, exception, and array behavior.
-2. Complete the Android 1.x framework surface needed by real applications: `Activity`, `View`, `SurfaceView`, resources, `Canvas`, timers, storage, and lifecycle edge cases.
+2. Complete the Android 1.x–2.2 framework surface needed by real applications: `Activity`, `View`, `SurfaceView`, resources, `Canvas`, timers, storage, and lifecycle edge cases.
 3. Harden the libGDX compatibility layer: more constructor/signature variants, texture filtering/wrapping, atlas rotation/trim metadata, SpriteBatch transforms, and reliable texture lifetime management.
 4. Improve GLES 1.x correctness: full fixed-function state, color/texture pointers, blending factors, clipping, depth behavior, and more complete indexed rendering.
 5. Connect Android touch/key events and audio output to the emulated application instead of returning placeholders.
@@ -113,11 +113,11 @@ Only test APKs you own or are legally allowed to analyze. DonutHLE does not ship
 
 ## Thanks and inspiration
 
-Thank you to the developers and contributors of [touchHLE](https://github.com/touchHLE/touchHLE) for demonstrating a practical high-level emulation approach for historical mobile applications, and to [PocketHLE](https://github.com/j92580498-max/PocketHLE) for showing how the same idea can be applied to another legacy mobile platform with a modern Rust host. Their projects are valuable references and inspiration for the design direction of DonutHLE. DonutHLE has its own codebase, scope, and compatibility goals.
+Thank you to the developers and contributors of [touchHLE](https://github.com/touchHLE/touchHLE) for demonstrating a practical high-level emulation approach for historical mobile applications, and to [PocketHLE](https://github.com/j92580498-max/PocketHLE) for showing how the same idea can be applied to another legacy mobile platform with a modern Rust host. Their projects are valuable references and inspiration for the design direction of FroyoHLE. FroyoHLE has its own codebase, scope, and compatibility goals.
 
 ## Name and relationship to other projects
 
-DonutHLE is an independent prototype. It is not affiliated with Google, Android, touchHLE, PocketHLE, libGDX, or the authors of those projects. Android is a trademark of Google LLC. libGDX is an open-source framework maintained by its contributors.
+FroyoHLE is an independent prototype. It is not affiliated with Google, Android, touchHLE, PocketHLE, libGDX, or the authors of those projects. Android is a trademark of Google LLC. libGDX is an open-source framework maintained by its contributors.
 
 ## License
 
@@ -125,7 +125,7 @@ MIT. See [`LICENSE`](LICENSE).
 
 ## GitHub Actions and releases
 
-The repository includes a `Build DonutHLE` workflow. The desktop runtime always constructs `HostGles`, whose implementation routes GLES 1.x calls through the GLES1-on-GL2 adapter; there is no separate raw-GLES path for the PC build.
+The repository includes a `Build FroyoHLE` workflow. The desktop runtime always constructs `HostGles`, whose implementation routes GLES 1.x calls through the GLES1-on-GL2 adapter; there is no separate raw-GLES path for the PC build.
 
 - pushes and pull requests run the repository checks; pushes and pull requests targeting `main` also run the full Linux, Windows, and Android build workflow;
 - Android debug/release APKs, a Linux x86_64 binary, and a Windows x86_64 `.exe` are uploaded as artifacts;

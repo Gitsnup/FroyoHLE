@@ -1,4 +1,4 @@
-package org.donuthle.android;
+package org.froyohle.android;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -20,12 +20,12 @@ import java.util.Date;
 import java.util.Locale;
 
 final class StorageLayout {
-    static final String ROOT_NAME = "DonutHLE";
-    static final String APPS_NAME = "DonutHLE_apps";
-    static final String SANDBOX_NAME = "DonutHLE_sandbox";
-    static final String LOG_NAME = "DonutHLE_log.txt";
-    static final String OPTIONS_NAME = "DonutHLE_options.txt";
-    private static final String PREFS = "donuthle_storage";
+    static final String ROOT_NAME = "FroyoHLE";
+    static final String APPS_NAME = "FroyoHLE_apps";
+    static final String SANDBOX_NAME = "FroyoHLE_sandbox";
+    static final String LOG_NAME = "FroyoHLE_log.txt";
+    static final String OPTIONS_NAME = "FroyoHLE_options.txt";
+    private static final String PREFS = "froyohle_storage";
     private static final String TREE_URI = "apps_tree_uri";
 
     private StorageLayout() {}
@@ -39,7 +39,7 @@ final class StorageLayout {
 
     static File publicRoot(Context context) { return root(context); }
     static File apps(Context context) { return new File(root(context), APPS_NAME); }
-    static File sandbox(Context context) { return new File(root(context), "DonutHLE_sandbox"); }
+    static File sandbox(Context context) { return new File(root(context), "FroyoHLE_sandbox"); }
     static File logFile(Context context) { return new File(root(context), LOG_NAME); }
     static File options(Context context) { return new File(root(context), OPTIONS_NAME); }
 
@@ -47,9 +47,9 @@ final class StorageLayout {
         root(context).mkdirs();
         apps(context).mkdirs();
         sandbox(context).mkdirs();
-        if (!options(context).exists()) writeText(options(context), "# DonutHLE options\n# Android 1.x / API levels 1-4; default profile API level 4\n# Put one option per line.\n");
+        if (!options(context).exists()) writeText(options(context), "# FroyoHLE options\n# Android 1.x-2.2 Froyo / API levels 1-8; default profile API level 8\n# Put one option per line.\n");
         File readme = new File(root(context), "README.txt");
-        if (!readme.exists()) writeText(readme, "DonutHLE files\n\nDonutHLE_apps: APK library.\nDonutHLE_sandbox: per-game writable data.\nDonutHLE_log.txt: UTF-8 emulator log.\nDonutHLE_options.txt: emulator options.\n");
+        if (!readme.exists()) writeText(readme, "FroyoHLE files\n\nFroyoHLE_apps: APK library.\nFroyoHLE_sandbox: per-game writable data.\nFroyoHLE_log.txt: UTF-8 emulator log.\nFroyoHLE_options.txt: emulator options.\n");
     }
 
     static int importFromDefaultFolder(Context context) {
@@ -123,9 +123,9 @@ final class StorageLayout {
                 }
             }
         } catch (Exception error) {
-            appendLog(context, "UNIMPLEMENTED/ERROR: external DonutHLE_apps scan failed: " + error.getMessage());
+            appendLog(context, "UNIMPLEMENTED/ERROR: external FroyoHLE_apps scan failed: " + error.getMessage());
         }
-        if (imported > 0) appendLog(context, "Imported " + imported + " APK(s) from selected DonutHLE_apps folder");
+        if (imported > 0) appendLog(context, "Imported " + imported + " APK(s) from selected FroyoHLE_apps folder");
         return imported;
     }
 

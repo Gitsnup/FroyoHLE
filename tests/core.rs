@@ -1,14 +1,14 @@
-use donuthle::{
-    dalvik::DexHeader, manifest::AppManifest, ANDROID_X_MAX_API_LEVEL, ANDROID_X_MIN_API_LEVEL,
+use froyohle::{
+    dalvik::DexHeader, manifest::AppManifest, ANDROID_MAX_API_LEVEL, ANDROID_MIN_API_LEVEL,
     API_LEVEL, RELEASE,
 };
 
 #[test]
-fn targets_android_1x() {
-    assert_eq!(ANDROID_X_MIN_API_LEVEL, 1);
-    assert_eq!(ANDROID_X_MAX_API_LEVEL, 4);
-    assert_eq!(API_LEVEL, ANDROID_X_MAX_API_LEVEL);
-    assert_eq!(RELEASE, "Android 1.x");
+fn targets_android_froyo() {
+    assert_eq!(ANDROID_MIN_API_LEVEL, 1);
+    assert_eq!(ANDROID_MAX_API_LEVEL, 8);
+    assert_eq!(API_LEVEL, ANDROID_MAX_API_LEVEL);
+    assert_eq!(RELEASE, "Android 2.2 (Froyo)");
 }
 
 #[test]

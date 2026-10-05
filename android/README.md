@@ -1,14 +1,14 @@
-# DonutHLE Android build
+# FroyoHLE Android build
 
-DonutHLE is an **Android 1.x emulator**. The Android application is only the modern host shell; it does not change the emulated platform target.
+FroyoHLE is an **Android 1.x–2.2 (Froyo) emulator**. The Android application is only the modern host shell; it does not change the emulated platform target.
 
-This directory is the Android Studio/Gradle shell for DonutHLE. It builds a native Android application for:
+This directory is the Android Studio/Gradle shell for FroyoHLE. It builds a native Android application for:
 
 - `arm64-v8a`
 - `armeabi-v7a`
 - `x86_64`
 
-The Android app loads the Rust `donuthle` core through a JNI bridge. GitHub Actions cross-compiles the Rust static library for every supported ABI before Gradle packages the APK. A local Android build without a prebuilt Rust library remains a UI-only fallback and reports that state in the About screen.
+The Android app loads the Rust `froyohle` core through a JNI bridge. GitHub Actions cross-compiles the Rust static library for every supported ABI before Gradle packages the APK. A local Android build without a prebuilt Rust library remains a UI-only fallback and reports that state in the About screen.
 
 ## Build on a normal development machine
 
@@ -19,9 +19,9 @@ From this directory:
 ```sh
 ./gradlew assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
-adb shell am start -n org.donuthle.android/.MainActivity
+adb shell am start -n org.froyohle.android/.MainActivity
 ```
 
 Android Studio can open the `android/` directory directly.
 
-The repository's GitHub Actions workflow builds this project automatically on pushes, pull requests, and manual runs. It uploads debug/release APK artifacts. To create a release, push a tag such as `v0.1.1` or start the `Build DonutHLE` workflow with `publish_release` enabled.
+The repository's GitHub Actions workflow builds this project automatically on pushes, pull requests, and manual runs. It uploads debug/release APK artifacts. To create a release, push a tag such as `v0.1.1` or start the `Build FroyoHLE` workflow with `publish_release` enabled.

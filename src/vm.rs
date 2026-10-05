@@ -1979,9 +1979,10 @@ impl<'a> Vm<'a> {
                                     "height" => {
                                         Value::Float(self.framework.surface_size.1.max(480) as f32)
                                     }
-                                    "RELEASE" => Value::String("1.6".to_owned()),
-                                    "DEVICE" => Value::String("donuthle".to_owned()),
-                                    "MODEL" => Value::String("DonutHLE Linux".to_owned()),
+                                    "RELEASE" => Value::String("2.2".to_owned()),
+                                    "SDK" => Value::String("8".to_owned()),
+                                    "DEVICE" => Value::String("froyohle".to_owned()),
+                                    "MODEL" => Value::String("FroyoHLE Linux".to_owned()),
                                     _ => default_value_for_type(&field.type_name),
                                 })
                             })
@@ -4050,7 +4051,7 @@ impl<'a> Vm<'a> {
             }
             ("Lcom/badlogic/gdx/graphics/GLCommon;", "glGetString")
             | ("Lcom/badlogic/gdx/graphics/GL10;", "glGetString") => {
-                FrameworkResult::String("DonutHLE GLES 1.0 software renderer".to_owned())
+                FrameworkResult::String("FroyoHLE GLES 1.0 software renderer".to_owned())
             }
             ("Lcom/badlogic/gdx/graphics/GLCommon;", "glLoadIdentity")
             | ("Lcom/badlogic/gdx/graphics/GL10;", "glLoadIdentity")

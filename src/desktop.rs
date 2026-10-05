@@ -136,7 +136,7 @@ fn present_window(display: *mut c_void, runtime: &mut Runtime) -> Result<()> {
     if window == 0 {
         anyhow::bail!("cannot create X11 window");
     }
-    let title = c"DonutHLE - Linux";
+    let title = c"FroyoHLE - Linux";
     unsafe {
         XStoreName(display, window, title.as_ptr());
         XSelectInput(

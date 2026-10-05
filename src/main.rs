@@ -5,10 +5,14 @@ use std::{
 
 use anyhow::Result;
 use clap::{CommandFactory, Parser, Subcommand};
-use donuthle::{apk, runtime::Runtime};
+use froyohle::{apk, runtime::Runtime};
 
 #[derive(Parser, Debug)]
-#[command(name = "donuthle", version, about = "Android 1.x HLE prototype")]
+#[command(
+    name = "froyohle",
+    version,
+    about = "Android 2.2 (Froyo) HLE prototype"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -67,7 +71,7 @@ fn main() -> Result<()> {
             }
             Command::Validate { apk: path } => {
                 let report = runtime.validate_apk(&path)?;
-                println!("valid Android 1.x package");
+                println!("valid Android 1.x-2.2 package");
                 println!("package: {}", report.package);
                 println!(
                     "application: {}",
@@ -93,7 +97,7 @@ fn main() -> Result<()> {
                 }
                 #[cfg(target_os = "linux")]
                 if std::env::var_os("DISPLAY").is_some() {
-                    donuthle::desktop::present(runtime)?;
+                    froyohle::desktop::present(runtime)?;
                 } else {
                     println!("Linux framebuffer rendered; no X11 DISPLAY is available for a native window");
                 }
@@ -149,8 +153,8 @@ fn print_startup_help() {
     let mut command = Cli::command();
     let _ = command.print_help();
     println!();
-    println!("Drag an APK file onto DonutHLE.exe, or run:");
-    println!("  DonutHLE.exe run path\\\\to\\\\game.apk");
+    println!("Drag an APK file onto FroyoHLE.exe, or run:");
+    println!("  FroyoHLE.exe run path\\\\to\\\\game.apk");
 }
 
 #[cfg(windows)]

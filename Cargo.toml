@@ -1,10 +1,10 @@
 [package]
-name = "donuthle"
+name = "froyohle"
 version = "0.1.1"
 edition = "2021"
 description = "Experimental high-level emulator for Android 1.x applications"
 license = "MIT"
-repository = "https://github.com/KlugKlugTG/DonutHLE"
+repository = "https://github.com/Gitsnup/FroyoHLE"
 
 [lib]
 crate-type = ["rlib", "cdylib", "staticlib"]

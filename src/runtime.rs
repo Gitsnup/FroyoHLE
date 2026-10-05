@@ -28,8 +28,8 @@ impl Default for RuntimeConfig {
     fn default() -> Self {
         Self {
             screen: VirtualScreen::default(),
-            api_level: crate::ANDROID_X_MAX_API_LEVEL,
-            release: "Android 1.x",
+            api_level: crate::ANDROID_MAX_API_LEVEL,
+            release: "Android 2.2 (Froyo)",
             max_steps: 100_000,
         }
     }
@@ -150,7 +150,7 @@ impl Runtime {
                 dex.methods.len()
             ),
             message: format!(
-                "platform: Android 1.x (API 1-4); manifest decoded; launcher: {launcher}; resources: {resource_status}"
+                "platform: Android 2.2 Froyo (API 1-8); manifest decoded; launcher: {launcher}; resources: {resource_status}"
             ),
             compatibility,
         })

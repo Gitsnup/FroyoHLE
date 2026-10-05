@@ -1,4 +1,4 @@
-//! DonutHLE core: an explicit foundation for Android 1.x HLE work.
+//! FroyoHLE core: an explicit foundation for Android 1.x-2.2 (Froyo) HLE work.
 
 pub mod apk;
 pub mod assets;
@@ -20,10 +20,10 @@ pub mod vm;
 /// Single host graphics entry point: GLES 1.x is always adapted to the GL2-style renderer.
 pub type HostGles = gles1_on_gl2::Gles1OnGl2;
 
-pub const ANDROID_X_MIN_API_LEVEL: u32 = 1;
-pub const ANDROID_X_MAX_API_LEVEL: u32 = 4;
-pub const API_LEVEL: u32 = ANDROID_X_MAX_API_LEVEL;
-pub const RELEASE: &str = "Android 1.x";
+pub const ANDROID_MIN_API_LEVEL: u32 = 1;
+pub const ANDROID_MAX_API_LEVEL: u32 = 8;
+pub const API_LEVEL: u32 = ANDROID_MAX_API_LEVEL;
+pub const RELEASE: &str = "Android 2.2 (Froyo)";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct VirtualScreen {
@@ -122,7 +122,7 @@ pub(crate) fn publish_framebuffer(framebuffer: &Framebuffer) {
 }
 
 #[no_mangle]
-pub extern "C" fn donuthle_framebuffer_width() -> u32 {
+pub extern "C" fn froyohle_framebuffer_width() -> u32 {
     FRAME_SNAPSHOT
         .lock()
         .ok()
@@ -131,7 +131,7 @@ pub extern "C" fn donuthle_framebuffer_width() -> u32 {
 }
 
 #[no_mangle]
-pub extern "C" fn donuthle_framebuffer_height() -> u32 {
+pub extern "C" fn froyohle_framebuffer_height() -> u32 {
     FRAME_SNAPSHOT
         .lock()
         .ok()
@@ -143,7 +143,7 @@ pub extern "C" fn donuthle_framebuffer_height() -> u32 {
 ///
 /// `output` must point to a writable buffer of at least `output_len` bytes.
 #[no_mangle]
-pub unsafe extern "C" fn donuthle_framebuffer_copy(output: *mut u8, output_len: usize) -> usize {
+pub unsafe extern "C" fn froyohle_framebuffer_copy(output: *mut u8, output_len: usize) -> usize {
     if output.is_null() || output_len == 0 {
         return 0;
     }
@@ -159,7 +159,7 @@ pub unsafe extern "C" fn donuthle_framebuffer_copy(output: *mut u8, output_len: 
 }
 
 #[no_mangle]
-pub extern "C" fn donuthle_render_frame(_width: u32, _height: u32) -> u32 {
+pub extern "C" fn froyohle_render_frame(_width: u32, _height: u32) -> u32 {
     let Ok(mut runtime) = RUNTIME.lock() else {
         return 0;
     };
@@ -173,7 +173,7 @@ pub extern "C" fn donuthle_render_frame(_width: u32, _height: u32) -> u32 {
     match session.render_current_frame() {
         Ok((commands, _)) => commands as u32,
         Err(error) => {
-            eprintln!("DonutHLE frame render failed: {error}");
+            eprintln!("FroyoHLE frame render failed: {error}");
             clear_framebuffer();
             0
         }
@@ -181,7 +181,7 @@ pub extern "C" fn donuthle_render_frame(_width: u32, _height: u32) -> u32 {
 }
 
 #[no_mangle]
-pub extern "C" fn donuthle_touch(action: i32, x: f32, y: f32) -> i32 {
+pub extern "C" fn froyohle_touch(action: i32, x: f32, y: f32) -> i32 {
     let Ok(mut runtime) = RUNTIME.lock() else {
         return 0;
     };
@@ -195,19 +195,19 @@ pub extern "C" fn donuthle_touch(action: i32, x: f32, y: f32) -> i32 {
         Ok(crate::vm::Value::Int(value)) => value,
         Ok(_) => 1,
         Err(error) => {
-            eprintln!("DonutHLE touch dispatch failed: {error}");
+            eprintln!("FroyoHLE touch dispatch failed: {error}");
             0
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn donuthle_core_info() -> *const std::os::raw::c_char {
-    c"Rust DonutHLE core: Android 1.x APK parsing, AXML, resources, Dalvik VM, framework, GLES, and audio subsystems".as_ptr()
+pub extern "C" fn froyohle_core_info() -> *const std::os::raw::c_char {
+    c"Rust FroyoHLE core: Android 1.x-2.2 (Froyo) APK parsing, AXML, resources, Dalvik VM, framework, GLES, and audio subsystems".as_ptr()
 }
 
 #[no_mangle]
-pub extern "C" fn donuthle_game_title() -> *mut std::os::raw::c_char {
+pub extern "C" fn froyohle_game_title() -> *mut std::os::raw::c_char {
     let title = RUNTIME
         .lock()
         .ok()
@@ -226,7 +226,7 @@ pub extern "C" fn donuthle_game_title() -> *mut std::os::raw::c_char {
 ///
 /// `path` must be a valid, NUL-terminated C string for the lifetime of this call.
 #[no_mangle]
-pub unsafe extern "C" fn donuthle_launch_report(
+pub unsafe extern "C" fn froyohle_launch_report(
     path: *const std::os::raw::c_char,
 ) -> *mut std::os::raw::c_char {
     clear_framebuffer();
@@ -268,9 +268,9 @@ pub unsafe extern "C" fn donuthle_launch_report(
 
 /// # Safety
 ///
-/// `value` must be a pointer returned by `donuthle_launch_report` and must not be freed twice.
+/// `value` must be a pointer returned by `froyohle_launch_report` and must not be freed twice.
 #[no_mangle]
-pub unsafe extern "C" fn donuthle_free_string(value: *mut std::os::raw::c_char) {
+pub unsafe extern "C" fn froyohle_free_string(value: *mut std::os::raw::c_char) {
     if !value.is_null() {
         drop(std::ffi::CString::from_raw(value));
     }
@@ -344,11 +344,11 @@ mod framebuffer_tests {
             },
         );
         publish_framebuffer(&framebuffer);
-        assert_eq!(donuthle_framebuffer_width(), 1);
-        assert_eq!(donuthle_framebuffer_height(), 1);
+        assert_eq!(froyohle_framebuffer_width(), 1);
+        assert_eq!(froyohle_framebuffer_height(), 1);
         let mut output = [0_u8; 4];
         assert_eq!(
-            unsafe { donuthle_framebuffer_copy(output.as_mut_ptr(), output.len()) },
+            unsafe { froyohle_framebuffer_copy(output.as_mut_ptr(), output.len()) },
             4
         );
         assert_eq!(output, [1, 2, 3, 4]);

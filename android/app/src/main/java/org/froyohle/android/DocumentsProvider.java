@@ -1,4 +1,4 @@
-package org.donuthle.android;
+package org.froyohle.android;
 
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -14,7 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public final class DocumentsProvider extends android.provider.DocumentsProvider {
-    private static final String ROOT_ID = "donuthle";
+    private static final String ROOT_ID = "froyohle";
     private static final String[] DEFAULT_ROOT_PROJECTION = {
             DocumentsContract.Root.COLUMN_ROOT_ID,
             DocumentsContract.Root.COLUMN_MIME_TYPES,
@@ -47,7 +47,7 @@ public final class DocumentsProvider extends android.provider.DocumentsProvider 
         row.add(DocumentsContract.Root.COLUMN_MIME_TYPES, "*/*\napplication/vnd.android.package-archive");
         row.add(DocumentsContract.Root.COLUMN_FLAGS, DocumentsContract.Root.FLAG_SUPPORTS_CREATE);
         row.add(DocumentsContract.Root.COLUMN_ICON, android.R.drawable.ic_menu_upload);
-        row.add(DocumentsContract.Root.COLUMN_TITLE, "DonutHLE");
+        row.add(DocumentsContract.Root.COLUMN_TITLE, "FroyoHLE");
         row.add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, ROOT_ID);
         row.add(DocumentsContract.Root.COLUMN_AVAILABLE_BYTES, StorageLayout.root(getContext()).getFreeSpace());
         return result;
@@ -105,7 +105,7 @@ public final class DocumentsProvider extends android.provider.DocumentsProvider 
         if (!ROOT_ID.equals(documentId)) flags |= DocumentsContract.Document.FLAG_SUPPORTS_DELETE;
         MatrixCursor.RowBuilder row = result.newRow();
         row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, documentId);
-        row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, file.getName().isEmpty() ? "DonutHLE" : file.getName());
+        row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, file.getName().isEmpty() ? "FroyoHLE" : file.getName());
         row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, file.isDirectory() ? DocumentsContract.Document.MIME_TYPE_DIR : mimeType(file));
         row.add(DocumentsContract.Document.COLUMN_FLAGS, flags);
         row.add(DocumentsContract.Document.COLUMN_SIZE, file.isFile() ? file.length() : null);

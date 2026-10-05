@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'DonutHLE'
+rootProject.name = 'FroyoHLE'
 include ':app'

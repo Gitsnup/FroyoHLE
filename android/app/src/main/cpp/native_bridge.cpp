@@ -7,20 +7,20 @@
 #include <string>
 #include <vector>
 
-extern "C" const char* donuthle_core_info();
-extern "C" char* donuthle_launch_report(const char* path);
-extern "C" void donuthle_free_string(char* value);
-extern "C" char* donuthle_game_title();
-extern "C" uint32_t donuthle_framebuffer_width();
-extern "C" uint32_t donuthle_framebuffer_height();
-extern "C" int32_t donuthle_touch(int32_t action, float x, float y);
-#ifndef DONUTHLE_NO_CORE
-extern "C" uint32_t donuthle_render_frame(uint32_t width, uint32_t height);
-extern "C" size_t donuthle_framebuffer_copy(uint8_t* output, size_t output_len);
+extern "C" const char* froyohle_core_info();
+extern "C" char* froyohle_launch_report(const char* path);
+extern "C" void froyohle_free_string(char* value);
+extern "C" char* froyohle_game_title();
+extern "C" uint32_t froyohle_framebuffer_width();
+extern "C" uint32_t froyohle_framebuffer_height();
+extern "C" int32_t froyohle_touch(int32_t action, float x, float y);
+#ifndef FROYOHLE_NO_CORE
+extern "C" uint32_t froyohle_render_frame(uint32_t width, uint32_t height);
+extern "C" size_t froyohle_framebuffer_copy(uint8_t* output, size_t output_len);
 #endif
 
 static uint32_t nextFrame() {
-#ifdef DONUTHLE_NO_CORE
+#ifdef FROYOHLE_NO_CORE
     static uint32_t frame = 0;
     return ++frame;
 #else
@@ -40,36 +40,36 @@ static void drawRect(GLfloat left, GLfloat top, GLfloat right, GLfloat bottom, G
 }
 
 static jstring makeString(JNIEnv* env, const char* value) {
-    return env->NewStringUTF(value == nullptr ? "DonutHLE core unavailable" : value);
+    return env->NewStringUTF(value == nullptr ? "FroyoHLE core unavailable" : value);
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_org_donuthle_android_MainActivity_nativeRuntimeInfo(JNIEnv* env, jobject) {
-#ifdef DONUTHLE_NO_CORE
+Java_org_froyohle_android_MainActivity_nativeRuntimeInfo(JNIEnv* env, jobject) {
+#ifdef FROYOHLE_NO_CORE
     return makeString(env, "Android shell is built; Rust core is not linked in this local build.");
 #else
-    return makeString(env, donuthle_core_info());
+    return makeString(env, froyohle_core_info());
 #endif
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_org_donuthle_android_MainActivity_nativeLaunchApk(JNIEnv* env, jobject, jstring path) {
-#ifdef DONUTHLE_NO_CORE
+Java_org_froyohle_android_MainActivity_nativeLaunchApk(JNIEnv* env, jobject, jstring path) {
+#ifdef FROYOHLE_NO_CORE
     return makeString(env, "Rust core is not linked in this local build.");
 #else
     if (path == nullptr) return makeString(env, "Runtime error: APK path is null");
     const char* utfPath = env->GetStringUTFChars(path, nullptr);
     if (utfPath == nullptr) return makeString(env, "Runtime error: cannot read APK path");
-    char* report = donuthle_launch_report(utfPath);
+    char* report = froyohle_launch_report(utfPath);
     jstring result = makeString(env, report);
     env->ReleaseStringUTFChars(path, utfPath);
-    donuthle_free_string(report);
+    froyohle_free_string(report);
     return result;
 #endif
 }
 
 
-#ifndef DONUTHLE_NO_CORE
+#ifndef FROYOHLE_NO_CORE
 static uint32_t nextPowerOfTwo(uint32_t value) {
     uint32_t result = 1;
     while (result < value && result < 4096) result <<= 1;
@@ -93,8 +93,8 @@ static void drawFallbackFrame(GLfloat width, GLfloat height) {
 }
 
 static bool drawSoftwareFrame(GLfloat width, GLfloat height) {
-    const uint32_t frameWidth = donuthle_framebuffer_width();
-    const uint32_t frameHeight = donuthle_framebuffer_height();
+    const uint32_t frameWidth = froyohle_framebuffer_width();
+    const uint32_t frameHeight = froyohle_framebuffer_height();
     if (frameWidth == 0 || frameHeight == 0) return false;
 
     const uint32_t textureWidth = nextPowerOfTwo(frameWidth);
@@ -102,7 +102,7 @@ static bool drawSoftwareFrame(GLfloat width, GLfloat height) {
     std::vector<uint8_t> pixels(static_cast<size_t>(textureWidth) * textureHeight * 4u, 0);
     const size_t sourceLength = static_cast<size_t>(frameWidth) * frameHeight * 4u;
     std::vector<uint8_t> source(sourceLength);
-    if (donuthle_framebuffer_copy(source.data(), source.size()) != source.size()) return false;
+    if (froyohle_framebuffer_copy(source.data(), source.size()) != source.size()) return false;
     for (uint32_t row = 0; row < frameHeight; ++row) {
         const size_t sourceOffset = static_cast<size_t>(row) * frameWidth * 4u;
         const size_t destinationOffset = static_cast<size_t>(row) * textureWidth * 4u;
@@ -155,20 +155,20 @@ static bool drawSoftwareFrame(GLfloat width, GLfloat height) {
 #endif
 
 extern "C" JNIEXPORT jint JNICALL
-Java_org_donuthle_android_MainActivity_nativeTouchEvent(JNIEnv*, jobject, jint action, jfloat x, jfloat y) {
-#ifdef DONUTHLE_NO_CORE
+Java_org_froyohle_android_MainActivity_nativeTouchEvent(JNIEnv*, jobject, jint action, jfloat x, jfloat y) {
+#ifdef FROYOHLE_NO_CORE
     return 0;
 #else
-    return static_cast<jint>(donuthle_touch(static_cast<int32_t>(action), x, y));
+    return static_cast<jint>(froyohle_touch(static_cast<int32_t>(action), x, y));
 #endif
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_org_donuthle_android_MainActivity_nativeRenderFrame(JNIEnv*, jobject, jint width, jint height) {
+Java_org_froyohle_android_MainActivity_nativeRenderFrame(JNIEnv*, jobject, jint width, jint height) {
     const uint32_t frame = nextFrame();
     const GLfloat safeWidth = width > 0 ? static_cast<GLfloat>(width) : 1.0f;
     const GLfloat safeHeight = height > 0 ? static_cast<GLfloat>(height) : 1.0f;
-#ifdef DONUTHLE_NO_CORE
+#ifdef FROYOHLE_NO_CORE
     const GLfloat pulse = 0.5f + 0.5f * std::sin(static_cast<GLfloat>(frame) * 0.04f);
     glViewport(0, 0, static_cast<GLsizei>(safeWidth), static_cast<GLsizei>(safeHeight));
     glClearColor(0.035f, 0.055f, 0.07f, 1.0f);
@@ -193,7 +193,7 @@ Java_org_donuthle_android_MainActivity_nativeRenderFrame(JNIEnv*, jobject, jint 
     drawRect(safeWidth * 0.40f, safeHeight * 0.48f, safeWidth * 0.60f, safeHeight * 0.56f, 0.50f, 0.80f, 0.77f, 0.92f);
     glDisable(GL_BLEND);
 #else
-    donuthle_render_frame(static_cast<uint32_t>(safeWidth), static_cast<uint32_t>(safeHeight));
+    froyohle_render_frame(static_cast<uint32_t>(safeWidth), static_cast<uint32_t>(safeHeight));
     if (!drawSoftwareFrame(safeWidth, safeHeight)) drawFallbackFrame(safeWidth, safeHeight);
 #endif
     (void)frame;
